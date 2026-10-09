@@ -10,7 +10,7 @@ Utilisateur visé : Vous êtes un général qui doit gérer des équipes d'expé
 == Les comportements attendus: ==
 
 1. Consulter la collection de personnages.
-2. Filtrer la collection selon la disponibilité.
+2. Filtrer la collection selon le statut marine (pirates ou marines).
 3. Consulter un personnage avec un identifiant.
 4. Ajouter un personnage au répertoire.
 5. Modifier un un personnage existant.
