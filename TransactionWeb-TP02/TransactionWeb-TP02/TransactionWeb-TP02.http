@@ -1,0 +1,6 @@
+@TransactionWeb_TP02_HostAddress = http://localhost:5153
+
+GET {{TransactionWeb_TP02_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

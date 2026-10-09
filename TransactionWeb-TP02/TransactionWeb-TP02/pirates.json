@@ -1,0 +1,38 @@
+[
+  {
+    "Id": 1,
+    "Name": "Luffy",
+    "Type": "fighter",
+    "Level": 1,
+    "Bounty": 300000,
+    "Marine": false,
+    "Available": true
+  },
+  {
+    "Id": 2,
+    "Name": "Zoro",
+    "Type": "swordsman",
+    "Level": 1,
+    "Bounty": 250000,
+    "Marine": false,
+    "Available": true
+  },
+  {
+    "Id": 3,
+    "Name": "Garp",
+    "Type": "fighter",
+    "Level": 1,
+    "Bounty": 0,
+    "Marine": true,
+    "Available": true
+  },
+  {
+    "Id": 4,
+    "Name": "Bellamy",
+    "Type": "fighter",
+    "Level": 1,
+    "Bounty": 195000,
+    "Marine": false,
+    "Available": true
+  }
+]
