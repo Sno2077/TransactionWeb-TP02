@@ -1,2 +1,2 @@
 # TransactionWeb-TP02
-TP02 suite projet Pirates
+TP02 projet Pirates V0.2
