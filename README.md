@@ -1,4 +1,20 @@
-Thème personnel : Personnages de OnePiece
+## Prérequis
+
+- **.NET 10** ou supérieur
+- Éditeur : Visual Studio 2022, VS Code ou JetBrains Rider
+
+## Démarrage
+
+1. Ouvre un terminal dans le dossier racine du projet `TransactionWeb-TP02`
+2. Exécute :
+```bash
+   dotnet run
+```
+3. L'API démarre sur `http://localhost:5050`
+
+L'application charge les données par défaut depuis `pirates.json` au premier lancement.
+
+## Thème personnel : Personnages de OnePiece
 
 Mise en situation:
 Les élites mondiaux sont démasqués. Les pirates, les marines et les citoyens s'allient pour rendre l'équilibre dans Le Monde.
@@ -10,7 +26,7 @@ Utilisateur visé : Vous êtes un général qui doit gérer des équipes d'expé
 == Les comportements attendus: ==
 
 1. Consulter la collection de personnages.
-2. Filtrer la collection selon le statut marine (pirates ou marines).
+2. Filtrer la collection selon la disponibilité.
 3. Consulter un personnage avec un identifiant.
 4. Ajouter un personnage au répertoire.
 5. Modifier un un personnage existant.
