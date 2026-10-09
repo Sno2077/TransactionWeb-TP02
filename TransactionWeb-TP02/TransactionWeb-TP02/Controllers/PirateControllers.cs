@@ -1,11 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TransactionWeb_TP02.Data;
 using TransactionWeb_TP02.Models;
-using System.Text.Json;
 
 namespace TransactionWeb_TP02.Controllers;
 
-[ApiController]
 [Route("api/pirates")]
 public class PiratesController : ControllerBase
 {
@@ -16,32 +14,22 @@ public class PiratesController : ControllerBase
         _memory = memory;
     }
 
-    //======== /health ========
     [HttpGet("/health")]
-    public IActionResult Health()
-    {
-        return Ok(new { status = "ok" });
-    }
+    public IActionResult Health() => Ok(new { status = "ok" });
 
-    //======== /info ========
     [HttpGet("/info")]
-    public IActionResult Info()
+    public IActionResult Info() => Ok(new { application = "ServeurPirateTP", version = "0.1.0" });
+
+    [HttpGet("{id}")]
+    public ActionResult<Pirate> GetById(string id)
     {
-        return Ok(new { application = "ServeurPirateTP", version = "0.1.0" });
+        if (!int.TryParse(id, out int parsedId))
+            return BadRequest(new { error = "Invalid ID. Expected a whole number." });
+
+        Pirate? pirate = _memory.GetPirates().Find(p => p.Id == parsedId);
+        return pirate is null ? NotFound(new { error = "Pirate not found" }) : Ok(pirate);
     }
 
-    //======== GET by Id ========
-    [HttpGet("{id:int}")]
-    public ActionResult<Pirate> GetById(int id)
-    {
-        Pirate? pirate = _memory.GetPirates().Find(p => p.Id == id);
-
-        return pirate is null
-            ? NotFound(new { error = "Pirate not found" })
-            : Ok(pirate);
-    }
-
-    //======== GET liste + filtre marine ========
     [HttpGet]
     public IActionResult GetAll([FromQuery] string? marine)
     {
@@ -53,19 +41,18 @@ public class PiratesController : ControllerBase
             return BadRequest(new { error = "marine must be 'true' or 'false'" });
 
         bool marineValue = bool.Parse(marine);
-        List<Pirate> filtered = pirates.FindAll(p => p.Marine == marineValue);
-
-        return Ok(filtered);
+        return Ok(pirates.FindAll(p => p.Marine == marineValue));
     }
 
-    //======== POST (CREATE) ========
     [HttpPost]
     public IActionResult Create([FromBody] PirateSimple simple)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(new { error = "Invalid JSON body. Expected text for name and type, whole numbers for level and bounty, true or false for marine and available." });
+
         try
         {
             List<Pirate> pirates = _memory.GetPirates();
-
             Pirate newPirate = new Pirate
             {
                 Id = pirates.Count == 0 ? 1 : pirates.Max(p => p.Id) + 1,
@@ -82,17 +69,12 @@ public class PiratesController : ControllerBase
 
             return CreatedAtAction(nameof(GetById), new { id = newPirate.Id }, newPirate);
         }
-        catch (JsonException exception)
-        {
-            return BadRequest(new { error = $"Invalid JSON at {exception.Path}. Expected text for name and type, whole numbers for level and bounty, true or false for marine and available." });
-        }
         catch (ArgumentException exception)
         {
             return BadRequest(new { error = exception.Message });
         }
     }
 
-    //======== PUT (UPDATE) ========
     [HttpPut("{id:int}")]
     public IActionResult Update(int id, [FromBody] PirateSimple ps)
     {
@@ -102,8 +84,11 @@ public class PiratesController : ControllerBase
         if (pirate is null)
             return NotFound(new { error = "Pirate not found" });
 
+        if (!ModelState.IsValid)
+            return BadRequest(new { error = "Invalid JSON body. Expected text for name and type, whole numbers for level and bounty, true or false for marine and available." });
+
         try
-        {           
+        {
             Pirate validated = new Pirate
             {
                 Id = id,
@@ -125,17 +110,12 @@ public class PiratesController : ControllerBase
             _memory.SaveToFile();
             return Ok(pirate);
         }
-        catch (JsonException exception)
-        {
-            return BadRequest(new { error = $"Invalid JSON at {exception.Path}. Expected text for name and type, whole numbers for level and bounty, true or false for marine and available." });
-        }
         catch (ArgumentException exception)
         {
             return BadRequest(new { error = exception.Message });
         }
     }
 
-    //======== DELETE ========
     [HttpDelete("{id:int}")]
     public IActionResult Delete(int id)
     {
