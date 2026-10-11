@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TransactionWeb_TP02.Data;
 using TransactionWeb_TP02.Models;
+using System.Text.Json;
 
 namespace TransactionWeb_TP02.Controllers;
 
+[ApiController]
 [Route("api/pirates")]
 public class PiratesController : ControllerBase
 {
@@ -44,15 +46,38 @@ public class PiratesController : ControllerBase
         return Ok(pirates.FindAll(p => p.Marine == marineValue));
     }
 
+    //======== POST (CREATE) ========
     [HttpPost]
-    public IActionResult Create([FromBody] PirateSimple simple)
+    public async Task<IActionResult> Create()
     {
-        if (!ModelState.IsValid)
-            return BadRequest(new { error = "Invalid JSON body. Expected text for name and type, whole numbers for level and bounty, true or false for marine and available." });
+        // Lire le body directement (pas de [FromBody])
+        using var reader = new StreamReader(Request.Body);
+        string json = await reader.ReadToEndAsync();
 
+        if (string.IsNullOrWhiteSpace(json))
+            return BadRequest(new { error = "Request body is empty." });
+
+        PirateSimple? simple = null;
+
+        // Étape 1 : Parser le JSON
+        try
+        {
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            simple = JsonSerializer.Deserialize<PirateSimple>(json, options);
+
+            if (simple == null)
+                return BadRequest(new { error = "Invalid JSON body. Expected text for name and type, whole numbers for level and bounty, true or false for marine and available." });
+        }
+        catch (JsonException exception)
+        {
+            return BadRequest(new { error = $"Invalid JSON at {exception.Path}. Expected text for name and type, whole numbers for level and bounty, true or false for marine and available." });
+        }
+
+        // Étape 2 : Validation métier
         try
         {
             List<Pirate> pirates = _memory.GetPirates();
+
             Pirate newPirate = new Pirate
             {
                 Id = pirates.Count == 0 ? 1 : pirates.Max(p => p.Id) + 1,
@@ -75,8 +100,9 @@ public class PiratesController : ControllerBase
         }
     }
 
+    //======== PUT (UPDATE) ========
     [HttpPut("{id:int}")]
-    public IActionResult Update(int id, [FromBody] PirateSimple ps)
+    public async Task<IActionResult> Update(int id)
     {
         List<Pirate> pirates = _memory.GetPirates();
         Pirate? pirate = pirates.Find(p => p.Id == id);
@@ -84,9 +110,30 @@ public class PiratesController : ControllerBase
         if (pirate is null)
             return NotFound(new { error = "Pirate not found" });
 
-        if (!ModelState.IsValid)
-            return BadRequest(new { error = "Invalid JSON body. Expected text for name and type, whole numbers for level and bounty, true or false for marine and available." });
+        // Lire le body directement (pas de [FromBody])
+        using var reader = new StreamReader(Request.Body);
+        string json = await reader.ReadToEndAsync();
 
+        if (string.IsNullOrWhiteSpace(json))
+            return BadRequest(new { error = "Request body is empty." });
+
+        PirateSimple? ps = null;
+
+        // Étape 1 : Parser le JSON
+        try
+        {
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            ps = JsonSerializer.Deserialize<PirateSimple>(json, options);
+
+            if (ps == null)
+                return BadRequest(new { error = "Invalid JSON body. Expected text for name and type, whole numbers for level and bounty, true or false for marine and available." });
+        }
+        catch (JsonException exception)
+        {
+            return BadRequest(new { error = $"Invalid JSON at {exception.Path}. Expected text for name and type, whole numbers for level and bounty, true or false for marine and available." });
+        }
+
+        // Étape 2 : Validation métier
         try
         {
             Pirate validated = new Pirate
@@ -116,6 +163,7 @@ public class PiratesController : ControllerBase
         }
     }
 
+    //======== DELETE ========
     [HttpDelete("{id:int}")]
     public IActionResult Delete(int id)
     {
