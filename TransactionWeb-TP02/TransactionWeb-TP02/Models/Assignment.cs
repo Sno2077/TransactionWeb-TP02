@@ -1,6 +1,6 @@
 ﻿namespace TransactionWeb_TP02.Models
 {
-    public class Affectation
+    public class Assignment
     {
         public int Id { get; set; }
         public int PirateId { get; set; }

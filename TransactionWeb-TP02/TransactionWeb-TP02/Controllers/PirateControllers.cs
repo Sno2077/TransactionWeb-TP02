@@ -22,6 +22,7 @@ public class PiratesController : ControllerBase
     [HttpGet("/info")]
     public IActionResult Info() => Ok(new { application = "ServeurPirateTP", version = "0.1.0" });
 
+    //===== GET (READ) =====
     [HttpGet("{id}")]
     public ActionResult<Pirate> GetById(string id)
     {
@@ -128,7 +129,7 @@ public class PiratesController : ControllerBase
             if (ps == null)
                 return BadRequest(new { error = "Invalid JSON body. Expected text for name and type, whole numbers for level and bounty, true or false for marine and available." });
         }
-        catch (JsonException exception)
+        catch (JsonException exception)               
         {
             return BadRequest(new { error = $"Invalid JSON at {exception.Path}. Expected text for name and type, whole numbers for level and bounty, true or false for marine and available." });
         }
