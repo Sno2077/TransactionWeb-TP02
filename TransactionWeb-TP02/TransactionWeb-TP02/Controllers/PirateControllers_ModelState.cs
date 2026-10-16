@@ -4,6 +4,10 @@
 
 //namespace TransactionWeb_TP02.Controllers;
 
+
+// !!!!!!! FAILS WITH [Api Controller] !!!!!!!!
+
+
 //[Route("api/pirates")]
 //public class PiratesController : ControllerBase
 //{
