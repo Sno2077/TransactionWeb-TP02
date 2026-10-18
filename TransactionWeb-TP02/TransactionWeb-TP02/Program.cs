@@ -11,4 +11,4 @@ app.MapControllers();
 
 app.MapFallback(() => Results.NotFound(new { error = "Unknown route" }));
 
-app.Run("http://localhost:5050");
+app.Run();
