@@ -1,0 +1,19 @@
+Réflexion sur l'utilité de la persistance de données en JSON.
+
+Exploration des différentes options de structures pour les controllers.
+
+Questionnement sur les fonctionnalités de [Api Controller] et ses options de lecture JSON. 
+
+Demande de structure pour:
+1. Controller avec un DTO de string seulement:
+	fail car à la conversion du Boolean
+2. Essaie avec JSON.Patch
+	pas de gain observer, complexité ++
+3.Avec Model State
+	Cause une erreur a put et post lors de la conversion en objet,
+	solution: retirer [Api Controller] - non désiré.
+4. Choix final - Utilisation d'async pour assurer que les erreurs de format tombent aussi dans le try/catch
+
+
+Raison: Choisir un structure efficace puisque très répétitif.
+
