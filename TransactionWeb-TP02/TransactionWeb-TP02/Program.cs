@@ -4,6 +4,8 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddSingleton<PirateMemory>();
+builder.Services.AddSingleton<ExpeditionMemory>();
+builder.Services.AddSingleton<AssignementMemory>();
 
 WebApplication app = builder.Build();
 

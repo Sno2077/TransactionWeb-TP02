@@ -24,6 +24,18 @@ namespace TransactionWeb_TP02.Data
             File.WriteAllText(_filePath, json);
         }
 
+        public void Reset()
+        {
+            _pirates = new List<Pirate>
+    {
+        new Pirate { Id = 1, Name = "Luffy", Level = 1, Type = "fighter", Bounty = 300000, Marine = false, Available = true },
+        new Pirate { Id = 2, Name = "Zoro", Level = 1, Type = "swordsman", Bounty = 250000, Marine = false, Available = true },
+        new Pirate { Id = 3, Name = "Garp", Level = 1, Type = "fighter", Bounty = 0, Marine = true, Available = true },
+        new Pirate { Id = 4, Name = "Bellamy", Level = 1, Type = "fighter", Bounty = 195000, Marine = false, Available = true }
+    };
+            SaveToFile();
+        }
+
         private void LoadFromFile()
         {
             if (File.Exists(_filePath))
@@ -33,14 +45,7 @@ namespace TransactionWeb_TP02.Data
             }
             else
             {
-                _pirates = new List<Pirate>
-                {
-                    new Pirate { Id = 1, Name = "Luffy", Level = 1, Type = "fighter", Bounty = 300000, Marine = false, Available = true },
-                    new Pirate { Id = 2, Name = "Zoro", Level = 1, Type = "swordsman", Bounty = 250000, Marine = false, Available = true },
-                    new Pirate { Id = 3, Name = "Garp", Level = 1, Type = "fighter", Bounty = 0, Marine = true, Available = true },
-                    new Pirate { Id = 4, Name = "Bellamy", Level = 1, Type = "fighter", Bounty = 195000, Marine = false, Available = true }
-                };
-                SaveToFile();
+                Reset();
             }
         }
     }
