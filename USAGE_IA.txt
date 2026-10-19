@@ -48,3 +48,7 @@ GET /api/expeditions/{id}/weather, qui utilise l’adaptateur. Il faut aussi la 
 
 
 Option A retenue car plus simple et plus rapide. 
+
+
+
+Formater les routes prévues en .http

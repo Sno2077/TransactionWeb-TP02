@@ -1,0 +1,204 @@
+@base = http://localhost:5050
+
+# =====================================================================
+# Collection de requêtes - TP02
+#
+# Avant de commencer : arrêter l'application, supprimer pirates.json,
+# puis redémarrer. Le dossier private-reports est vidé au démarrage.
+# Jouer les requêtes dans l'ordre, SANS redémarrer.
+#
+# Les commentaires "attendu" viennent du contrat. Après chaque requête,
+# comparer le statut et le corps réels à l'attendu.
+# =====================================================================
+
+
+# ---------------------------------------------------------------------
+# A. État initial
+# ---------------------------------------------------------------------
+
+### A1. Pirates triés par nom - attendu : 200, Bellamy, Garp, Luffy, Zoro (tous available: true)
+GET {{base}}/api/pirates
+Accept: application/json
+
+### A2. Expéditions - attendu : 200, 1 (open, capacité 2), 2 (planned), 3 (planned)
+GET {{base}}/api/expeditions
+Accept: application/json
+
+### A3. Affectations de l'expédition 1 - attendu : 200, []
+GET {{base}}/api/expeditions/1/assignments
+Accept: application/json
+
+
+# ---------------------------------------------------------------------
+# B. Scénario nominal : affecter Luffy à l'expédition ouverte
+# ---------------------------------------------------------------------
+
+### B1. Affecter Luffy (1) à l'expédition 1 - attendu : 201, affectation id 1, active: true
+POST {{base}}/api/expeditions/1/assignments
+Content-Type: application/json
+Accept: application/json
+
+{ "pirateId": 1 }
+
+### B2. Luffy est maintenant indisponible - attendu : 200, available: false
+GET {{base}}/api/pirates/1
+Accept: application/json
+
+### B3. Le lien est consultable - attendu : 200, une affectation (pirateId 1, expeditionId 1)
+GET {{base}}/api/expeditions/1/assignments
+Accept: application/json
+
+
+# ---------------------------------------------------------------------
+# C. Données invalides (aucun changement attendu)
+# ---------------------------------------------------------------------
+
+### C1. pirateId à 0 - attendu : 400
+POST {{base}}/api/expeditions/1/assignments
+Content-Type: application/json
+Accept: application/json
+
+{ "pirateId": 0 }
+
+### C2. limit hors limites - attendu : 400
+GET {{base}}/api/pirates?limit=0
+Accept: application/json
+
+### C3. Identifiant mal formé - attendu : 400
+GET {{base}}/api/pirates/abc
+Accept: application/json
+
+### C4. Filtre invalide - attendu : 400
+GET {{base}}/api/pirates?marine=banana
+Accept: application/json
+
+
+# ---------------------------------------------------------------------
+# D. Ressources inexistantes
+# ---------------------------------------------------------------------
+
+### D1. Pirate absent - attendu : 404
+POST {{base}}/api/expeditions/1/assignments
+Content-Type: application/json
+Accept: application/json
+
+{ "pirateId": 99 }
+
+### D2. Expédition absente - attendu : 404
+POST {{base}}/api/expeditions/99/assignments
+Content-Type: application/json
+Accept: application/json
+
+{ "pirateId": 2 }
+
+### D3. Annuler une expédition absente - attendu : 404
+POST {{base}}/api/expeditions/99/cancel
+Accept: application/json
+
+
+# ---------------------------------------------------------------------
+# E. Échec simulé : aucun effet partiel
+#    Comparer E1 et E2 (avant) avec E4 et E5 (après).
+#    Le succès précédent (Luffy) fait partie de l'état à conserver.
+# ---------------------------------------------------------------------
+
+### E1. AVANT - pirates disponibles - attendu : 200, Bellamy, Garp, Zoro (Luffy absent)
+GET {{base}}/api/pirates?available=true
+Accept: application/json
+
+### E2. AVANT - affectations de l'expédition 1 - attendu : 200, une seule (Luffy)
+GET {{base}}/api/expeditions/1/assignments
+Accept: application/json
+
+### E3. Échec simulé pour Zoro (2) - attendu : 500
+POST {{base}}/api/expeditions/1/assignments?simulateFailure=true
+Content-Type: application/json
+Accept: application/json
+
+{ "pirateId": 2 }
+
+### E4. APRÈS - pirates disponibles - attendu : identique à E1
+GET {{base}}/api/pirates?available=true
+Accept: application/json
+
+### E5. APRÈS - affectations de l'expédition 1 - attendu : identique à E2
+GET {{base}}/api/expeditions/1/assignments
+Accept: application/json
+
+
+# ---------------------------------------------------------------------
+# F. Champ réservé au serveur : id et active envoyés par le client
+# ---------------------------------------------------------------------
+
+### F1. Affecter Zoro (2) en envoyant id et active - attendu : 201, id généré (2) et active: true
+POST {{base}}/api/expeditions/1/assignments
+Content-Type: application/json
+Accept: application/json
+
+{ "pirateId": 2, "id": 99, "active": false }
+
+
+# ---------------------------------------------------------------------
+# G. Conflits métier
+#    Pour chacun : lire AVANT, envoyer, lire APRÈS (sans remise à zéro).
+# ---------------------------------------------------------------------
+
+### G0. AVANT - pirates - attendu : Bellamy et Garp disponibles, Luffy et Zoro non
+GET {{base}}/api/pirates
+Accept: application/json
+
+### G1. Pirate déjà affecté (Luffy) - attendu : 409
+POST {{base}}/api/expeditions/1/assignments
+Content-Type: application/json
+Accept: application/json
+
+{ "pirateId": 1 }
+
+### G2. Capacité atteinte (expédition 1 pleine : Luffy et Zoro) - attendu : 409
+POST {{base}}/api/expeditions/1/assignments
+Content-Type: application/json
+Accept: application/json
+
+{ "pirateId": 3 }
+
+### G3. Expédition non ouverte (2 est planned) - attendu : 409
+POST {{base}}/api/expeditions/2/assignments
+Content-Type: application/json
+Accept: application/json
+
+{ "pirateId": 3 }
+
+### G4. APRÈS - pirates - attendu : identique à G0
+GET {{base}}/api/pirates
+Accept: application/json
+
+### G5. APRÈS - affectations de l'expédition 1 - attendu : toujours 2 (Luffy et Zoro)
+GET {{base}}/api/expeditions/1/assignments
+Accept: application/json
+
+
+# ---------------------------------------------------------------------
+# H. Workflow : transition permise, puis transition refusée
+# ---------------------------------------------------------------------
+
+### H1. AVANT - expéditions - attendu : 2 est planned
+GET {{base}}/api/expeditions
+Accept: application/json
+
+### H2. Annuler l'expédition 2 (planned) - attendu : 200, state: cancelled (transition permise)
+POST {{base}}/api/expeditions/2/cancel
+Accept: application/json
+
+### H3. AVANT le refus - expéditions - attendu : 2 est cancelled
+GET {{base}}/api/expeditions
+Accept: application/json
+
+### H4. Annuler encore l'expédition 2 - attendu : 409 (transition refusée)
+POST {{base}}/api/expeditions/2/cancel
+Accept: application/json
+
+### H5. APRÈS le refus - expéditions - attendu : identique à H3
+GET {{base}}/api/expeditions
+Accept: application/json
+
+
