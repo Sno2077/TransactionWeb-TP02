@@ -2,7 +2,7 @@
 
 namespace TransactionWeb_TP02.Data
 {
-    public class AssignementMemory
+    public class AssignmentMemory
     {
         private List<Assignment> _assignments = new();
 
