@@ -7,14 +7,14 @@ namespace TransactionWeb_TP02.Controllers
 {
     [ApiController]
     [Route("api/expeditions")]
-    public class ExpeditionController : ControllerBase
+    public class ExpeditionsController : ControllerBase
     {
         private readonly ExpeditionMemory _expeditionMemory;
         private readonly AssignmentMemory _assignmentMemory;
         private readonly ExpeditionWorkflowService _workflow;
         private readonly AssignmentService _assignmentService;
         
-        public ExpeditionController(
+        public ExpeditionsController(
             ExpeditionMemory expeditionMemory,
             AssignmentMemory assignmentMemory,
             ExpeditionWorkflowService workflow,
@@ -63,6 +63,9 @@ namespace TransactionWeb_TP02.Controllers
         [HttpPost("{id:int}/assignments")]
         public IActionResult Assign(int id, [FromBody] AssignmentDTO dto, [FromQuery] bool simulateFailure = false)
         {
+            if (dto.PirateId <= 0)
+                return Problem(detail: "pirateId must be a positive integer.", statusCode: 400);
+           
             AssignOutcome outcome = _assignmentService.Assign(dto.PirateId, id, simulateFailure, out Assignment? assignment);
 
             switch (outcome)

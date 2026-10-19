@@ -1,3 +1,8 @@
+###### Les classes : 
+	PirateController_DTOFailed.cs
+	PirateControllerJSONPatch.cs
+	PirateControllers_ModelState.cs
+ne font pas parties du projet mais ont été laissées à des fins d'apprentissage. Svp, ignorer.
 ## Prérequis
 
 - **.NET 10** ou supérieur
