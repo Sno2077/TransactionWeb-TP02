@@ -19,8 +19,8 @@ namespace TransactionWeb_TP02.Data
         {
             _expeditions = new List<Expedition>
             {
-                new Expedition { Id = 1, Name = "Twin Cape", Capacity = 5, State = "open" },
-                new Expedition { Id = 2, Name = "Water 7", Capacity = 3, State = "planned" },
+                new Expedition { Id = 1, Name = "Twin Cape", Capacity = 2, State = "open" },
+                new Expedition { Id = 2, Name = "Water 7", Capacity = 4, State = "planned" },
                 new Expedition { Id = 3, Name = "Alabasta", Capacity = 7, State = "planned" }
             };
         }

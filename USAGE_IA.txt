@@ -22,3 +22,29 @@ Faire un résumé des notes de cours sur le workflow (cours 9).
 
 
 Adaption des route pirates aux expeditions. IA suggere l'utilisation des switch case pour retourner le Outcome de AssignService Idée retenue.
+
+Suggestion d'un format uniform pour les erreurs.
+Format retenu: app.MapFallback(() => Results.Problem(detail: "Unknown route.", statusCode: 404));
+
+et return Problem()
+
+Suggestion sur l'approche pour le critère I:
+Option A : un fichier (un rapport d’expédition)
+
+Ce que tu construis
+
+PUT /api/expeditions/{id}/report : le client envoie un petit fichier texte.
+GET /api/expeditions/{id}/report : le client télécharge ce même fichier.
+Le serveur valide la taille (par exemple 1 à 4096 octets), le type (text/plain) et le contenu (par exemple une première ligne précise). Le fichier est rangé dans un dossier privé.
+
+Option B : un service simulé (la météo des vagues)
+
+Ce que tu construis
+
+Un faux service dans ton appli : GET /simulator/sea?region=..., avec des modes (normal, lent, indisponible).
+Un adaptateur qui l’appelle, avec un délai de 500 ms, vérifie la réponse et convertit les unités.
+GET /api/expeditions/{id}/weather, qui utilise l’adaptateur. Il faut aussi la region sur les expéditions 
+
+
+
+Option A retenue car plus simple et plus rapide. 

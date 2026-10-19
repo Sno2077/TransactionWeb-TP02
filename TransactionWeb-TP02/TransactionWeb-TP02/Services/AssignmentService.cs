@@ -65,8 +65,7 @@ namespace TransactionWeb_TP02.Services
             };
 
             assignments.Add(assignment);
-            pirate.Available = false;
-            _pirateMemory.SaveToFile();
+            pirate.Available = false;           
 
             return AssignOutcome.Success;
 

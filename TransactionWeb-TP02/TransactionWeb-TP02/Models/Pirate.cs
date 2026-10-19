@@ -13,7 +13,7 @@
 
         private static List<string> ValidTypes = new()
         {
-            "fighter","swordsman","navigator","doctor","ingeneer","cook","sniper"
+            "fighter","swordsman","navigator","doctor","engineer","cook","sniper"
         };
 
         public int Id

@@ -48,7 +48,7 @@ public class PiratesController : ControllerBase
         if (available.HasValue)
             pirates = pirates.Where(p => p.Available == available.Value);
 
-        return Ok(pirates.OrderBy(p => p.Name).Take(limit).ToList());
+        return Ok(pirates.OrderBy(p => p.Name).ThenBy(p => p.Id).Take(limit).ToList());
     }
 
     //======== POST (CREATE) ========
