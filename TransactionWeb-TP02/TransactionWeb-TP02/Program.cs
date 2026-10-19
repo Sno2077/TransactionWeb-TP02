@@ -14,6 +14,6 @@ WebApplication app = builder.Build();
 
 app.MapControllers();
 
-app.MapFallback(() => Results.NotFound(new { error = "Unknown route" }));
+app.MapFallback(() => Results.Problem(detail: "Unknown route.", statusCode: 404));
 
 app.Run();

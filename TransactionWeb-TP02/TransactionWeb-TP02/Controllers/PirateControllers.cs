@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TransactionWeb_TP02.Data;
 using TransactionWeb_TP02.Models;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 
 namespace TransactionWeb_TP02.Controllers;
@@ -27,24 +28,27 @@ public class PiratesController : ControllerBase
     public ActionResult<Pirate> GetById(string id)
     {
         if (!int.TryParse(id, out int parsedId))
-            return BadRequest(new { error = "Invalid ID. Expected a whole number." });
+            return Problem(detail: "Invalid ID. Expected a whole number.", statusCode: 400);
 
         Pirate? pirate = _memory.GetPirates().Find(p => p.Id == parsedId);
-        return pirate is null ? NotFound(new { error = "Pirate not found" }) : Ok(pirate);
+        return pirate is null ? Problem(detail: "Pirate not found", statusCode: 404) : Ok(pirate);
     }
 
     [HttpGet]
-    public IActionResult GetAll([FromQuery] string? marine)
+    public IActionResult GetAll(
+        [FromQuery] bool? marine,
+        [FromQuery] bool? available,
+        [FromQuery, Range(1, 100)] int limit = 10)
     {
-        List<Pirate> pirates = _memory.GetPirates();
+        IEnumerable<Pirate> pirates = _memory.GetPirates();
 
-        if (marine == null)
-            return Ok(pirates);
-        if (marine != "true" && marine != "false")
-            return BadRequest(new { error = "marine must be 'true' or 'false'" });
+        if (marine.HasValue)
+            pirates = pirates.Where(p => p.Marine == marine.Value);
 
-        bool marineValue = bool.Parse(marine);
-        return Ok(pirates.FindAll(p => p.Marine == marineValue));
+        if (available.HasValue)
+            pirates = pirates.Where(p => p.Available == available.Value);
+
+        return Ok(pirates.OrderBy(p => p.Name).Take(limit).ToList());
     }
 
     //======== POST (CREATE) ========
@@ -56,7 +60,7 @@ public class PiratesController : ControllerBase
         string json = await reader.ReadToEndAsync();
 
         if (string.IsNullOrWhiteSpace(json))
-            return BadRequest(new { error = "Request body is empty." });
+            return Problem(detail: "Request body is empty.", statusCode: 400);
 
         PirateSimple? simple = null;
 
@@ -67,11 +71,11 @@ public class PiratesController : ControllerBase
             simple = JsonSerializer.Deserialize<PirateSimple>(json, options);
 
             if (simple == null)
-                return BadRequest(new { error = "Invalid JSON body. Expected text for name and type, whole numbers for level and bounty, true or false for marine and available." });
+                return Problem(detail: "Invalid JSON body. Expected text for name and type, whole numbers for level and bounty, true or false for marine and available.", statusCode: 400);
         }
         catch (JsonException exception)
         {
-            return BadRequest(new { error = $"Invalid JSON at {exception.Path}. Expected text for name and type, whole numbers for level and bounty, true or false for marine and available." });
+            return Problem(detail: $"Invalid JSON at {exception.Path}. Expected text for name and type, whole numbers for level and bounty, true or false for marine and available.", statusCode: 400);
         }
 
         // Étape 2 : Validation métier
@@ -97,7 +101,7 @@ public class PiratesController : ControllerBase
         }
         catch (ArgumentException exception)
         {
-            return BadRequest(new { error = exception.Message });
+            return Problem(detail: exception.Message, statusCode: 400);
         }
     }
 
@@ -109,14 +113,14 @@ public class PiratesController : ControllerBase
         Pirate? pirate = pirates.Find(p => p.Id == id);
 
         if (pirate is null)
-            return NotFound(new { error = "Pirate not found" });
+            return Problem(detail: "Pirate not found", statusCode: 404);
 
         // Lire le body directement (pas de [FromBody])
         using var reader = new StreamReader(Request.Body);
         string json = await reader.ReadToEndAsync();
 
         if (string.IsNullOrWhiteSpace(json))
-            return BadRequest(new { error = "Request body is empty." });
+            return Problem(detail: "Request body is empty.", statusCode: 400);
 
         PirateSimple? ps = null;
 
@@ -127,11 +131,11 @@ public class PiratesController : ControllerBase
             ps = JsonSerializer.Deserialize<PirateSimple>(json, options);
 
             if (ps == null)
-                return BadRequest(new { error = "Invalid JSON body. Expected text for name and type, whole numbers for level and bounty, true or false for marine and available." });
+                return Problem(detail: "Invalid JSON body. Expected text for name and type, whole numbers for level and bounty, true or false for marine and available.", statusCode: 400);
         }
         catch (JsonException exception)
         {
-            return BadRequest(new { error = $"Invalid JSON at {exception.Path}. Expected text for name and type, whole numbers for level and bounty, true or false for marine and available." });
+            return Problem(detail: $"Invalid JSON at {exception.Path}. Expected text for name and type, whole numbers for level and bounty, true or false for marine and available.", statusCode: 400);
         }
 
         // Étape 2 : Validation métier
@@ -160,7 +164,7 @@ public class PiratesController : ControllerBase
         }
         catch (ArgumentException exception)
         {
-            return BadRequest(new { error = exception.Message });
+            return Problem(detail: exception.Message, statusCode: 400);
         }
     }
 
@@ -172,7 +176,7 @@ public class PiratesController : ControllerBase
         int index = pirates.FindIndex(p => p.Id == id);
 
         if (index < 0)
-            return NotFound(new { error = "Pirate not found" });
+            return Problem(detail: "Pirate not found", statusCode: 404);
 
         pirates.RemoveAt(index);
         _memory.SaveToFile();

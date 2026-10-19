@@ -19,3 +19,6 @@ Raison: Choisir un structure efficace puisque très répétitif.
 
 
 Faire un résumé des notes de cours sur le workflow (cours 9).
+
+
+Adaption des route pirates aux expeditions. IA suggere l'utilisation des switch case pour retourner le Outcome de AssignService Idée retenue.
