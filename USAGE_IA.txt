@@ -17,3 +17,5 @@ Demande de structure pour:
 
 Raison: Choisir un structure efficace puisque très répétitif.
 
+
+Faire un résumé des notes de cours sur le workflow (cours 9).
