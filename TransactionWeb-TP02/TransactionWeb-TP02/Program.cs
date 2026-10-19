@@ -8,6 +8,7 @@ builder.Services.AddSingleton<PirateMemory>();
 builder.Services.AddSingleton<ExpeditionMemory>();
 builder.Services.AddSingleton<AssignmentMemory>();
 builder.Services.AddSingleton<ExpeditionWorkflowService>();
+builder.Services.AddSingleton<AssignmentService>();
 
 WebApplication app = builder.Build();
 

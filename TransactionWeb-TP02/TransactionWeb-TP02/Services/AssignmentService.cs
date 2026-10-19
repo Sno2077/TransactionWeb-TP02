@@ -1,5 +1,4 @@
-﻿using System.Runtime.InteropServices;
-using TransactionWeb_TP02.Data;
+﻿using TransactionWeb_TP02.Data;
 using TransactionWeb_TP02.Models;
 
 namespace TransactionWeb_TP02.Services
@@ -12,7 +11,8 @@ namespace TransactionWeb_TP02.Services
         ExpeditionNotOpen,
         PirateUnavailable,
         PirateAlreadyAssigned,
-        CrewCapacityReached
+        CrewCapacityReached,
+        SimulatedFailure
     }
     public class AssignmentService
     {
@@ -27,7 +27,7 @@ namespace TransactionWeb_TP02.Services
             _assignmentMemory = assignmentMemory;
         }
 
-        public AssignOutcome Assign(int pirateId, int expeditionId, out Assignment? assignment)
+        public AssignOutcome Assign(int pirateId, int expeditionId, bool simulateFailure, out Assignment? assignment)
         {
             assignment = null;
 
@@ -41,7 +41,7 @@ namespace TransactionWeb_TP02.Services
 
             List<Assignment> assignments = _assignmentMemory.GetAssignments();
 
-            if (expedition.State != "planned")
+            if (expedition.State != "open")
                 return AssignOutcome.ExpeditionNotOpen;
             if (!pirate.Available)
                 return AssignOutcome.PirateUnavailable;
@@ -51,6 +51,9 @@ namespace TransactionWeb_TP02.Services
             int activeCount = assignments.Count(a => a.ExpeditionId == expeditionId && a.Active);
             if (activeCount >= expedition.Capacity)
                 return AssignOutcome.CrewCapacityReached;
+
+            if (simulateFailure)
+                return AssignOutcome.SimulatedFailure;
 
             assignment = new Assignment
             {
