@@ -39,6 +39,34 @@ namespace TransactionWeb_TP02.Services
             if (expedition is null)
                 return AssignOutcome.ExpeditionNotFound;
 
+            List<Assignment> assignments = _assignmentMemory.GetAssignments();
+
+            if (expedition.State != "planned")
+                return AssignOutcome.ExpeditionNotOpen;
+            if (!pirate.Available)
+                return AssignOutcome.PirateUnavailable;
+            if (assignments.Any(a => a.PirateId == pirateId && a.Active))
+                return AssignOutcome.PirateAlreadyAssigned;
+
+            int activeCount = assignments.Count(a => a.ExpeditionId == expeditionId && a.Active);
+            if (activeCount >= expedition.Capacity)
+                return AssignOutcome.CrewCapacityReached;
+
+            assignment = new Assignment
+            {
+                Id = assignments.Count == 0 ? 1 : assignments.Max(a => a.Id) + 1,
+                PirateId = pirateId,
+                ExpeditionId = expeditionId,
+                Active = true
+
+            };
+
+            assignments.Add(assignment);
+            pirate.Available = false;
+            _pirateMemory.SaveToFile();
+
+            return AssignOutcome.Success;
+
         }
     }
 }
