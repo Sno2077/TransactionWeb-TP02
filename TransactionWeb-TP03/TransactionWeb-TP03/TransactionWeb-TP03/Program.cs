@@ -1,17 +1,16 @@
-var builder = WebApplication.CreateBuilder(args);
+namespace TransactionWeb_TP03;
 
-// Add services to the container.
-
-builder.Services.AddControllers();
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
+/// <summary>Assemble le serveur et le démarre.</summary>
+internal static class Program
+{
+    /// <summary>Démarre le serveur des expéditions.</summary>
+    public static void Main(string[] args)
+    {
+        WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+        builder.Services.AddControllers();
+        WebApplication app = builder.Build();
+        app.MapControllers();
+        app.MapFallback(() => Results.Problem(detail: "Unknown route.", statusCode: 404));
+        app.Run();
+    }
+}
